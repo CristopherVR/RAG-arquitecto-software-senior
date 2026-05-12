@@ -1,0 +1,14 @@
+llama-index
+chromadb
+openai
+tiktoken
+GitPython
+python-dotenv
+sentence-transformers
+pandas
+openpyxl
+lxml
+pymupdf
+pyyaml
+tree-sitter
+tree-sitter-languages
