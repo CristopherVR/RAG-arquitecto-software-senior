@@ -7,7 +7,7 @@ from app.vectorstore.chroma_client import ChromaManager
 
 import uuid
 
-REPO_URL = "https://github.com/tu_repo.git"
+REPO_URL = "https://github.com/CristopherVR/modulo-contactos-frontend.git"
 
 LOCAL_REPO = "./repos/project"
 

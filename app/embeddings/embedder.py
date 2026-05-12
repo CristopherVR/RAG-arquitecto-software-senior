@@ -1,22 +1,19 @@
-from openai import OpenAI
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+from sentence_transformers import SentenceTransformer
 
 class Embedder:
 
     def __init__(self):
 
-        self.client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
+        print("Cargando modelo de embeddings...")
+
+        self.model = SentenceTransformer(
+            "all-MiniLM-L6-v2"
         )
+
+        print("Modelo cargado")
 
     def generate_embedding(self, text):
 
-        response = self.client.embeddings.create(
-            model="text-embedding-3-small",
-            input=text
-        )
+        embedding = self.model.encode(text)
 
-        return response.data[0].embedding
+        return embedding.tolist()
