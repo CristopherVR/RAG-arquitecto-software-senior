@@ -4,6 +4,8 @@ from app.parsers.code_parser import CodeParser
 from app.chunkers.code_chunker import CodeChunker
 from app.embeddings.embedder import Embedder
 from app.vectorstore.chroma_client import ChromaManager
+from app.parsers.js_parser import JSParser
+from git import Repo
 
 import uuid
 
@@ -28,12 +30,7 @@ def main():
 
     for file in files:
 
-        document = CodeParser.parse_file(file)
-
-        if not document:
-            continue
-
-        chunks = CodeChunker.chunk_document(document)
+        chunks = JSParser.parse_file(file)
 
         for chunk in chunks:
 
