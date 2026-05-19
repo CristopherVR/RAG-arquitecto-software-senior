@@ -2,6 +2,8 @@ import re
 import os
 
 from app.models.document import DocumentChunk
+from app.parsers.dependency_parser import DependencyParser
+
 
 class JSParser:
 
@@ -14,6 +16,11 @@ class JSParser:
 
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
+
+            # EXTRAER DEPENDENCIAS
+            dependencies = DependencyParser.extract_dependencies(
+                content
+            )
 
             chunks = []
 
@@ -36,7 +43,7 @@ class JSParser:
 
                 function_content = content[start:end]
 
-                function_name = match.group(2)
+                function_name = match.group(1)
 
                 chunks.append(
                     DocumentChunk(
@@ -45,7 +52,10 @@ class JSParser:
                             "type": "function",
                             "function_name": function_name,
                             "path": file_path,
-                            "file_name": os.path.basename(file_path)
+                            "file_name": os.path.basename(file_path),
+
+                            # NUEVO
+                            "dependencies": str(dependencies)
                         }
                     )
                 )
