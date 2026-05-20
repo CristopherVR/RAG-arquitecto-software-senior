@@ -1,6 +1,6 @@
 from app.loaders.git_loader import GitLoader
 from app.loaders.file_scanner import FileScanner
-from app.parsers.code_parser import CodeParser
+from app.parsers.js_entity_parser import JSEntityParser
 from app.chunkers.code_chunker import CodeChunker
 from app.embeddings.embedder import Embedder
 from app.vectorstore.chroma_client import ChromaManager
@@ -30,7 +30,7 @@ def main():
 
     for file in files:
 
-        chunks = JSParser.parse_file(file)
+        chunks = JSEntityParser.parse_file(file)
 
         for chunk in chunks:
 

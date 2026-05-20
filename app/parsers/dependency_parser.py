@@ -1,8 +1,9 @@
 import re
 
+
 class DependencyParser:
 
-    FUNCTION_PATTERN = r"(?:const|let|var|function)\s+([a-zA-Z0-9_]+)"
+    IMPORT_PATTERN = r'import\s+(.*?)\s+from\s+[\'"](.*?)[\'"]'
 
     @staticmethod
     def extract_dependencies(content):
