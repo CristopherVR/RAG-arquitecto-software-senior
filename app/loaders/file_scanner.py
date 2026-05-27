@@ -1,5 +1,6 @@
 import os
-
+from app.parsers.drawio_parser import DrawIOParser
+from app.parsers.excel_parser import ExcelParser
 from app.parsers.js_entity_parser import JSEntityParser
 from app.parsers.python_entity_parser import PythonEntityParser
 from app.parsers.code_parser import CodeParser
@@ -10,8 +11,13 @@ SUPPORTED_EXTENSIONS = {
     ".js", ".jsx", ".ts", ".tsx",
     # Python
     ".py",
+    #drawio y XML (se indexan como entidades)
+    ".drawio", ".xml",
+    # excel (se indexa como entidades)
+    ".xlsx",
     # Genéricos (se indexan como texto completo)
     ".md", ".yaml", ".yml", ".json",
+    
 }
 
 IGNORED_DIRS = {
@@ -57,6 +63,22 @@ class FileScanner:
         if ext == ".py":
             return PythonEntityParser.parse_file(file_path)
 
+        if ext in {".drawio", ".xml"}:
+            return DrawIOParser.parse_file(file_path)
+        
+        if ext == ".xml":
+            # Solo parsear como Draw.io si el contenido lo indica
+            try:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                    snippet = f.read(500)
+                if "mxCell" in snippet or "mxGraphModel" in snippet:
+                    return DrawIOParser.parse_file(file_path)
+            except Exception:
+                pass
+            # Si no es Draw.io, indexar como texto genérico
+            chunk = CodeParser.parse_file(file_path)
+            return [chunk] if chunk else []
+                
         # Markdown, YAML, JSON — indexar como texto completo
         if ext in {".md", ".yaml", ".yml", ".json"}:
             chunk = CodeParser.parse_file(file_path)
