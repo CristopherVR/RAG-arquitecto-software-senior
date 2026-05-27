@@ -12,3 +12,6 @@ pymupdf
 pyyaml
 tree-sitter
 tree-sitter-languages
+python-dotenv
+groq
+llm
