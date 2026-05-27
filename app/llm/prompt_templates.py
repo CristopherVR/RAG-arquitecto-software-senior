@@ -9,15 +9,22 @@ REGLAS ESTRICTAS:
 3. SIEMPRE cita tus fuentes al final de cada respuesta usando el formato de FUENTES.
 4. Nunca inventes nombres de archivos, funciones, campos o rutas que no aparezcan en el contexto.
 5. Si la pregunta involucra trazabilidad, lista todos los archivos relevantes encontrados.
-6. Responde de forma concisa y sintetizada. No copies bloques de código completos
-   en tu respuesta salvo que sea estrictamente necesario para explicar algo puntual.
-7. Si la pregunta es sobre qué componentes o funciones existen, responde con una
+6. Responde de forma concisa y sintetizada. No copies bloques de código completos \
+   salvo que sea estrictamente necesario para explicar algo puntual.
+7. Si la pregunta es sobre qué componentes o funciones existen, responde con una \
    lista organizada por archivo, no con el código completo.
 
 FORMATO DE FUENTES (obligatorio al final de cada respuesta):
 ---
-📂 Fuentes consultadas:
-- [nombre_archivo] → línea {line} | tipo: {entity_type} | entidad: {name}
+Fuentes consultadas:
+- nombre_del_archivo | linea: numero | tipo: entity_type | entidad: nombre_entidad
+---
+
+Ejemplo de fuentes correcto:
+---
+Fuentes consultadas:
+- App.js | linea: 10 | tipo: component | entidad: App
+- ContactosPage.jsx | linea: 45 | tipo: function | entidad: buildRows
 ---
 """
 
@@ -37,7 +44,6 @@ def build_user_prompt(query, chunks):
     for i, chunk in enumerate(chunks, start=1):
         meta = chunk["metadata"]
 
-        # Construir encabezado de cada fragmento
         header_parts = [f"[Fragmento {i}]"]
 
         if meta.get("file_name"):
@@ -49,7 +55,7 @@ def build_user_prompt(query, chunks):
         if meta.get("name"):
             header_parts.append(f"Entidad: {meta['name']}")
         if meta.get("line"):
-            header_parts.append(f"Línea: {meta['line']}")
+            header_parts.append(f"Linea: {meta['line']}")
         if meta.get("chunk_part"):
             header_parts.append(
                 f"Parte: {meta['chunk_part']} de {meta.get('chunk_total', '?')}"
@@ -64,8 +70,12 @@ def build_user_prompt(query, chunks):
     return f"""CONTEXTO DE LA BASE DE CONOCIMIENTO:
 {context_text}
 
-PREGUNTA:
+PREGUNTA DEL USUARIO:
 {query}
 
-Responde basándote exclusivamente en el contexto anterior. \
-Incluye las fuentes al final siguiendo el formato indicado."""
+Instrucciones:
+- Responde basándote exclusivamente en el contexto anterior.
+- Al final incluye el bloque de fuentes con los archivos, líneas y entidades \
+que usaste para responder. Usa los datos exactos del encabezado de cada fragmento.
+- No uses llaves como {{variable}} en tu respuesta.
+"""

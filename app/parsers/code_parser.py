@@ -16,7 +16,10 @@ class CodeParser:
                 metadata={
                     "file_name": os.path.basename(file_path),
                     "path": file_path,
-                    "extension": os.path.splitext(file_path)[1]
+                    "extension": os.path.splitext(file_path)[1],
+                    "entity_type": "document",           
+                    "name": os.path.basename(file_path), 
+                    "line": 1 
                 }
             )
 
