@@ -2,7 +2,7 @@ from app.llm.rag_chain import RAGChain
 
 rag = RAGChain()
 
-result = rag.query("¿Qué endpoints existen en el repositorio?")
+result = rag.query("¿¿Qué componentes React existen en el repositorio??")
 
 print("RESPUESTA:")
 print(result["answer"])

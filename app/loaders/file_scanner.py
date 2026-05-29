@@ -1,4 +1,6 @@
 import os
+
+from app.parsers.pdf_parser import PDFParser
 from app.parsers.drawio_parser import DrawIOParser
 from app.parsers.excel_parser import ExcelParser
 from app.parsers.js_entity_parser import JSEntityParser
@@ -9,16 +11,24 @@ from app.parsers.code_parser import CodeParser
 SUPPORTED_EXTENSIONS = {
     # JavaScript / TypeScript
     ".js", ".jsx", ".ts", ".tsx",
+
     # Python
     ".py",
-    #drawio y XML (se indexan como entidades)
+
+    ".cs",
+
+    # Draw.io y XML
     ".drawio", ".xml",
-    # excel (se indexa como entidades)
-    ".xlsx",
-    # Genéricos (se indexan como texto completo)
+
+    # Excel y CSV
+    ".xlsx", ".csv",
+
+    ".pdf",
+
+    # Genéricos
     ".md", ".yaml", ".yml", ".json",
-    
 }
+
 
 IGNORED_DIRS = {
     ".git", "node_modules", "bin", "obj",
@@ -30,11 +40,6 @@ class FileScanner:
 
     @staticmethod
     def scan_repository(repo_path):
-        """
-        Recorre el repositorio y retorna una lista de rutas de archivos
-        con extensiones soportadas.
-        """
-
         files = []
 
         for root, dirs, filenames in os.walk(repo_path):
@@ -43,6 +48,7 @@ class FileScanner:
 
             for file in filenames:
                 ext = os.path.splitext(file)[1].lower()
+
                 if ext in SUPPORTED_EXTENSIONS:
                     files.append(os.path.join(root, file))
 
@@ -50,11 +56,6 @@ class FileScanner:
 
     @staticmethod
     def parse_file(file_path):
-        """
-        Recibe la ruta de un archivo y delega al parser correcto
-        según su extensión. Retorna una lista de DocumentChunk.
-        """
-
         ext = os.path.splitext(file_path)[1].lower()
 
         if ext in {".js", ".jsx", ".ts", ".tsx"}:
@@ -63,23 +64,33 @@ class FileScanner:
         if ext == ".py":
             return PythonEntityParser.parse_file(file_path)
 
-        if ext in {".drawio", ".xml"}:
+        if ext == ".drawio":
             return DrawIOParser.parse_file(file_path)
-        
+
         if ext == ".xml":
-            # Solo parsear como Draw.io si el contenido lo indica
             try:
                 with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                     snippet = f.read(500)
+
                 if "mxCell" in snippet or "mxGraphModel" in snippet:
                     return DrawIOParser.parse_file(file_path)
+
             except Exception:
                 pass
-            # Si no es Draw.io, indexar como texto genérico
+
             chunk = CodeParser.parse_file(file_path)
             return [chunk] if chunk else []
-                
-        # Markdown, YAML, JSON — indexar como texto completo
+
+        if ext == ".xlsx":
+            return ExcelParser.parse_file(file_path)
+        
+        if ext == ".pdf":
+            return PDFParser.parse_file(file_path)
+
+        if ext == ".csv":
+            chunk = CodeParser.parse_file(file_path)
+            return [chunk] if chunk else []
+
         if ext in {".md", ".yaml", ".yml", ".json"}:
             chunk = CodeParser.parse_file(file_path)
             return [chunk] if chunk else []
